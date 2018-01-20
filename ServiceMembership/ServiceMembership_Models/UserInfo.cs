@@ -12,8 +12,10 @@ namespace ServiceMembership_Models
         public UserInfo()
         {
             this.UserProfiles = new List<string>();
+            this.UName = this.UserName;
         }
 
+        public string UName { get; set; }        
         public int UserInfoID { get; set; }
         public string PhoneNumber { get; set; }
         public string FirstName { get; set; }
