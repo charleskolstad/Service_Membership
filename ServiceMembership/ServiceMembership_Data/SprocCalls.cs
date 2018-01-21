@@ -51,6 +51,17 @@ namespace ServiceMembership_Data
             return DBCommands.ExecuteNonQuery("p_Profile_Update");
         }
 
+        public string UserInfoInsert(UserInfo userInfo, string adminUser)
+        {
+            DBCommands.PopulateParams("@UserName", userInfo.UName);
+            DBCommands.PopulateParams("@PhoneNumber", userInfo.PhoneNumber);
+            DBCommands.PopulateParams("@FirstName", userInfo.FirstName);
+            DBCommands.PopulateParams("@LastName", userInfo.LastName);
+            DBCommands.PopulateParams("@AdminUser", adminUser);
+
+            return DBCommands.ExecuteScalar("p_UserInfo_Insert");
+        }
+
         public bool UserInfoUpdate(UserInfo userInfo, DataTable profileTable, string adminUser)
         {
             DBCommands.PopulateParams("@AdminUser", adminUser);
@@ -107,6 +118,11 @@ namespace ServiceMembership_Data
             return true;
         }
 
+        public string UserInfoInsert(UserInfo userInfo, string adminUser)
+        {
+            return "1";
+        }
+
         public bool UserInfoUpdate(UserInfo userInfo, DataTable profileTable, string adminUser)
         {
             return true;
@@ -133,5 +149,6 @@ namespace ServiceMembership_Data
         bool UserInfoUpdate(UserInfo userInfo, DataTable profileTable, string adminUser);
         DataTable UserProfileGetByUser(string userName);
         //bool UserProfileUpdate(MemberProfile profile, string adminUser);
+        string UserInfoInsert(UserInfo userInfo, string adminUser);
     }
 }
