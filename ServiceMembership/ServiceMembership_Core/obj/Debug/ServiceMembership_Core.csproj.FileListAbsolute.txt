@@ -1,0 +1,10 @@
+C:\My_Projects\Services\ServiceMembership\ServiceMembership\ServiceMembership_Core\bin\Debug\ServiceMembership_Core.dll
+C:\My_Projects\Services\ServiceMembership\ServiceMembership\ServiceMembership_Core\bin\Debug\ServiceMembership_Core.pdb
+C:\My_Projects\Services\ServiceMembership\ServiceMembership\ServiceMembership_Core\bin\Debug\Microsoft.Web.Infrastructure.dll
+C:\My_Projects\Services\ServiceMembership\ServiceMembership\ServiceMembership_Core\bin\Debug\ServiceMembership_Data.dll
+C:\My_Projects\Services\ServiceMembership\ServiceMembership\ServiceMembership_Core\bin\Debug\ServiceMembership_Models.dll
+C:\My_Projects\Services\ServiceMembership\ServiceMembership\ServiceMembership_Core\bin\Debug\ServiceMembership_Data.pdb
+C:\My_Projects\Services\ServiceMembership\ServiceMembership\ServiceMembership_Core\bin\Debug\ServiceMembership_Models.pdb
+C:\My_Projects\Services\ServiceMembership\ServiceMembership\ServiceMembership_Core\obj\Debug\ServiceMembership_Core.csprojResolveAssemblyReference.cache
+C:\My_Projects\Services\ServiceMembership\ServiceMembership\ServiceMembership_Core\obj\Debug\ServiceMembership_Core.dll
+C:\My_Projects\Services\ServiceMembership\ServiceMembership\ServiceMembership_Core\obj\Debug\ServiceMembership_Core.pdb
