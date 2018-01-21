@@ -11,7 +11,7 @@ namespace ServiceMembership_Models
     {
         public UserInfo()
         {
-            this.UserProfiles = new List<string>();
+            this.UserProfiles = new List<MemberProfile>();
             this.UName = this.UserName;
         }
 
@@ -20,6 +20,6 @@ namespace ServiceMembership_Models
         public string PhoneNumber { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public List<string> UserProfiles { get; set; }
+        public List<MemberProfile> UserProfiles { get; set; }
     }
 }

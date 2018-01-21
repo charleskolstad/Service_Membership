@@ -14,7 +14,7 @@ namespace ServiceMembership_Data
     {
         static List<string> _ParamName = new List<string>();
         static List<object> _ParamValue = new List<object>();
-        static string _Connection = @"Data Source=sql7002.site4now.net;Initial Catalog=DB_A33007_Test;User ID=DB_A33007_Test_admin;Password=Cheese020810Cake";
+        public readonly static string _Connection = @"Data Source=sql7002.site4now.net;Initial Catalog=DB_A33007_Test;User ID=DB_A33007_Test_admin;Password=Cheese020810Cake";
 
         internal static void PopulateParams(string paramName, object paramValue)
         {

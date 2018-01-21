@@ -51,7 +51,7 @@ namespace ServiceMembership_Data
             return DBCommands.ExecuteNonQuery("p_Profile_Update");
         }
 
-        public bool UserInfoUpdate(UserInfo userInfo, string adminUser)
+        public bool UserInfoUpdate(UserInfo userInfo, DataTable profileTable, string adminUser)
         {
             DBCommands.PopulateParams("@AdminUser", adminUser);
             DBCommands.PopulateParams("@UserInfoID", userInfo.UserInfoID);
@@ -59,6 +59,7 @@ namespace ServiceMembership_Data
             DBCommands.PopulateParams("@PhoneNumber", userInfo.PhoneNumber);
             DBCommands.PopulateParams("@FirstName", userInfo.FirstName);
             DBCommands.PopulateParams("@LastName", userInfo.LastName);
+            DBCommands.PopulateParams("@UserProfileTable", profileTable);
 
             return DBCommands.ExecuteNonQuery("p_UserInfo_Update");
         }
@@ -68,15 +69,15 @@ namespace ServiceMembership_Data
             return DBCommands.AdapterFill("p_UserProfile_GetByUserName");
         }
 
-        public bool UserProfileUpdate(string userName, int profileID, bool active, string adminUser)
-        {
-            DBCommands.PopulateParams("@AdminUser", adminUser);
-            DBCommands.PopulateParams("@UserName", userName);
-            DBCommands.PopulateParams("@Active", active);
-            DBCommands.PopulateParams("@ProfileID", profileID);
+        //public bool UserProfileUpdate(MemberProfile profile, string adminUser)
+        //{
+        //    DBCommands.PopulateParams("@AdminUser", adminUser);
+        //    DBCommands.PopulateParams("@UserName", profile.UserName);
+        //    DBCommands.PopulateParams("@Active", profile.Active);
+        //    DBCommands.PopulateParams("@ProfileID", profile.ProfileID);
 
-            return DBCommands.ExecuteNonQuery("p_UserProfile_Update");
-        }
+        //    return DBCommands.ExecuteNonQuery("p_UserProfile_Update");
+        //}
     }
 
     public class FakeSprocCalls : ISprocCalls
@@ -106,7 +107,7 @@ namespace ServiceMembership_Data
             return true;
         }
 
-        public bool UserInfoUpdate(UserInfo userInfo, string adminUser)
+        public bool UserInfoUpdate(UserInfo userInfo, DataTable profileTable, string adminUser)
         {
             return true;
         }
@@ -116,10 +117,10 @@ namespace ServiceMembership_Data
             return new DataTable();
         }
 
-        public bool UserProfileUpdate(string userName, int profileID, bool active, string adminUser)
-        {
-            return true;
-        }
+        //public bool UserProfileUpdate(MemberProfile profile, string adminUser)
+        //{
+        //    return true;
+        //}
     }
 
     public interface ISprocCalls
@@ -129,8 +130,8 @@ namespace ServiceMembership_Data
         bool UpdateProfile(Profile profile, string userName);
         bool DeleteProfile(int profileID, string userName);
         UserInfo GetUserInfoByUser(string userName);
-        bool UserInfoUpdate(UserInfo userInfo, string adminUser);
+        bool UserInfoUpdate(UserInfo userInfo, DataTable profileTable, string adminUser);
         DataTable UserProfileGetByUser(string userName);
-        bool UserProfileUpdate(string userName, int profileID, bool active, string adminUser);
+        //bool UserProfileUpdate(MemberProfile profile, string adminUser);
     }
 }

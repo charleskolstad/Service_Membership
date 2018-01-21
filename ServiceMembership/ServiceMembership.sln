@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceMembership_Models", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceMembership_Data", "ServiceMembership_Data\ServiceMembership_Data.csproj", "{2197BB7C-0B9E-468A-87D8-201B46EAE356}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceMembership_Core", "ServiceMembership_Core\ServiceMembership_Core.csproj", "{309076D6-265E-4676-AFE1-1400AC1F8F8B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{2197BB7C-0B9E-468A-87D8-201B46EAE356}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2197BB7C-0B9E-468A-87D8-201B46EAE356}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2197BB7C-0B9E-468A-87D8-201B46EAE356}.Release|Any CPU.Build.0 = Release|Any CPU
+		{309076D6-265E-4676-AFE1-1400AC1F8F8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{309076D6-265E-4676-AFE1-1400AC1F8F8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{309076D6-265E-4676-AFE1-1400AC1F8F8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{309076D6-265E-4676-AFE1-1400AC1F8F8B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
