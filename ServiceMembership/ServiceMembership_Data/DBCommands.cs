@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -181,12 +183,37 @@ namespace ServiceMembership_Data
         {
             try
             {
-                //save to database
+                using (SqlConnection con = new SqlConnection(_Connection))
+                {
+                    SqlCommand cmd = new SqlCommand("p_ErrorLog", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@Message", exception.Message);
+                    cmd.Parameters.AddWithValue("@StackTrace", exception.StackTrace);
+
+                    con.Open();
+                    cmd.ExecuteNonQuery();
+                }
             }
             catch (Exception ex)
             {
-                //email
-                throw;
+                MailAddress fromAddress = new MailAddress("charlespkolstad@gmail.com", "Charles");
+                MailAddress toAddress = new MailAddress("charlespkolstad@gmail.com", "Charles");
+                string subject = "Error in Service Membership";
+                string body = "Service Membership error - " + exception.Message + " not recorded" +
+                    " because of " + ex.Message;
+
+                SmtpClient smtp = new SmtpClient();
+                smtp.Host = "smtp.gmail.com";
+                smtp.Port = 587;
+                smtp.EnableSsl = false;
+                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+                smtp.UseDefaultCredentials = false;
+                smtp.Credentials = new NetworkCredential("charlespkolstad@gmail.com", "charles020810kolstad");
+                MailMessage message = new MailMessage(fromAddress, toAddress);
+                message.Subject = subject;
+                message.Body = body;
+
+                smtp.Send(message);
             }
         }
     }
