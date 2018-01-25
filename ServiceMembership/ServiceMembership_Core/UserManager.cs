@@ -47,32 +47,38 @@ namespace ServiceMembership_Core
             return string.Empty;
         }
 
-        public static string UpdateUser(UserInfo uInfo, ISprocCalls sprocCalls = null)
+        public static string UpdateUser(UserInfo uInfo, string adminUser)
+        {
+            string result = string.Empty;
+            Provider provider = new Provider();
+
+            if (UpdateMembershipEmail(uInfo))
+                result = UpdateUser(uInfo, adminUser, new SprocCalls());
+
+            if(!string.IsNullOrEmpty(result))
+                SendNotificationMail(uInfo, UserManagerActions.update);
+
+            return result;
+        }
+
+        public static string UpdateUser(UserInfo uInfo, string adminUser, ISprocCalls sprocCalls = null)
         {
             try
             {
-                Provider provider = new Provider();
+                sprocCalls = ApplicationTools.InitSprocCall(sprocCalls);
 
-                if (UpdateMembershipEmail(uInfo))
-                {
-                    sprocCalls = ApplicationTools.InitSprocCall(sprocCalls);
-
-                    DataTable profileTable = ConvertProfileToTable(uInfo.UserProfiles);
-                    string adminUser = Membership.GetUser().UserName;
-                    if (sprocCalls.UserInfoUpdate(uInfo, profileTable, adminUser))
-                    {
-                        SendNotificationMail(uInfo, UserManagerActions.update);
-                        return uInfo.UserName + "'s profile updated successfully!";
-                    }
-                }
+                DataTable profileTable = ConvertProfileToTable(uInfo.UserProfiles);
+                if (sprocCalls.UserInfoUpdate(uInfo, profileTable, adminUser))
+                    return uInfo.UserName + "'s profile updated successfully!";
 
                 return "Error updating " + uInfo.UserName;
             }
             catch (Exception ex)
             {
                 DBCommands.RecordError(ex);
-                return "Error - " + ex.Message;
             }
+
+            return string.Empty;
         }
 
         private static DataTable ConvertProfileToTable(List<MemberProfile> profileList)
@@ -116,7 +122,7 @@ namespace ServiceMembership_Core
             }
         }
 
-        public static string DeleteUser(string user, string adminUser, ISprocCalls sprocCalls = null)
+        public static string DeleteUser(string user, string adminUser)
         {
             try
             {
@@ -124,16 +130,20 @@ namespace ServiceMembership_Core
 
                 if (Membership.DeleteUser(user))
                 {
-                    SendNotificationMail(GetUserInfo(Membership.GetUser(adminUser), sprocCalls), UserManagerActions.delete);
+                    UserInfo userInfo = GetUserInfo(Membership.GetUser(adminUser), new SprocCalls());
+                    if(userInfo != null)
+                        SendNotificationMail(userInfo, UserManagerActions.delete);
+
                     return "Deleted user successfully.";
                 }
+                else
+                    throw new Exception("Error deleting user");
             }
             catch (Exception ex)
             {
                 DBCommands.RecordError(ex);
-            }
-
-            return "Error deleting user.";
+                return "Error deleting user.";   
+            }            
         }
 
         public static bool RecoverPassword(RecoverModel model, ISprocCalls sprocCalls = null)
@@ -243,17 +253,25 @@ namespace ServiceMembership_Core
 
         private static UserInfo GetUserInfo(MembershipUser user, ISprocCalls sprocCalls)
         {
-            UserInfo uMember = new UserInfo();
-            UserInfo uInfo = sprocCalls.GetUserInfoByUser(user.UserName);
+            try
+            {
+                UserInfo uMember = new UserInfo();
+                UserInfo uInfo = sprocCalls.GetUserInfoByUser(user.UserName);
 
-            uMember = (UserInfo)user;
-            uMember.UserInfoID = uInfo.UserInfoID;
-            uMember.PhoneNumber = uInfo.PhoneNumber;
-            uMember.FirstName = uInfo.FirstName;
-            uMember.LastName = uInfo.LastName;
-            uMember.UserProfiles = uInfo.UserProfiles;
+                uMember = (UserInfo)user;
+                uMember.UserInfoID = uInfo.UserInfoID;
+                uMember.PhoneNumber = uInfo.PhoneNumber;
+                uMember.FirstName = uInfo.FirstName;
+                uMember.LastName = uInfo.LastName;
+                uMember.UserProfiles = uInfo.UserProfiles;
 
-            return uMember;
+                return uMember;
+            }
+            catch (Exception ex)
+            {
+                DBCommands.RecordError(ex);
+                return null;
+            }
         }
     }
 

@@ -7,3 +7,4 @@ C:\My_Projects\Services\ServiceMembership\ServiceMembership\ServiceMembership_Mo
 C:\My_Projects\Services\ServiceMembership\ServiceMembership\ServiceMembership_Models\bin\Debug\EntityFramework.SqlServer.xml
 C:\My_Projects\Services\ServiceMembership\ServiceMembership\ServiceMembership_Models\obj\Debug\ServiceMembership_Models.dll
 C:\My_Projects\Services\ServiceMembership\ServiceMembership\ServiceMembership_Models\obj\Debug\ServiceMembership_Models.pdb
+C:\My_Projects\Services\ServiceMembership\ServiceMembership\ServiceMembership_Models\obj\Debug\ServiceMembership_Models.csprojResolveAssemblyReference.cache
