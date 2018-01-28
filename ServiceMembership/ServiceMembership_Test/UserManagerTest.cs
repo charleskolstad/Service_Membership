@@ -45,5 +45,75 @@ namespace ServiceMembership_Test
             //assert
             Assert.IsTrue(string.IsNullOrEmpty(result));
         }
+
+        [Test]
+        public void GetUserInfo_SuccessfullyCreateObject_ReturnsNonNull()
+        {
+            //arrange
+            string userName = "Test-User";
+            UserInfo user;
+
+            //act
+            user = UserManager.GetUserInfo(userName, true);
+
+            //assert
+            Assert.IsNotNull(user);
+        }
+
+        [Test]
+        public void SendNotificationMail_SendEmailSuccessfully_ReturnTrue()
+        {
+            //arrange
+            UserInfo user = new UserInfo();
+            bool result;
+
+            //act
+            result = UserManager.SendNotificationMail(user, UserManagerActions.create, true);
+
+            //assert
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void DeleteUser_SuccessfullyDeleteUser_ReturnEmptyString()
+        {
+            //arrange
+            string user = "user";
+            string adminUser = "adminUser";
+            string result;
+
+            //act
+            result = UserManager.DeleteUser(user, adminUser, true);
+
+            //assert
+            Assert.IsTrue(string.IsNullOrEmpty(result));
+        }
+
+        [Test]
+        public void RecoverPassword_SucessfullyRecoverPassword_ReturnEmptyString()
+        {
+            //arrange
+            RecoverModel model = new RecoverModel();
+            string result;
+
+            //act
+            result = UserManager.RecoverPassword(model, true);
+
+            //assert
+            Assert.IsTrue(string.IsNullOrEmpty(result));
+        }
+
+        [Test]
+        public void GetAllUsers_SucessfullyGetListOfUsers_ReturnEmptyList()
+        {
+            //arrange
+            List<UserInfo> userList;
+
+            //act
+            userList = UserManager.GetAllUsers(true);
+
+            //assert
+            Assert.IsTrue(userList != null);
+        }
     }
 }

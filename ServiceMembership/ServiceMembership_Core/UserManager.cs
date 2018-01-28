@@ -26,6 +26,8 @@ namespace ServiceMembership_Core
                 {
                     if (string.IsNullOrEmpty(sprocCalls.UserInfoInsert(userInfo, adminUser)))
                         return "Error saving user's info";
+                    else
+                        SendNotificationMail(userInfo, UserManagerActions.create, isTest);
                 }
                 else
                     return providerMessage;
@@ -48,6 +50,8 @@ namespace ServiceMembership_Core
             {
                 if (!sprocCalls.UserInfoUpdate(uInfo, ConvertProfileToTable(uInfo.UserProfiles), adminUser))
                     return "Error updating user info.";
+                else
+                    SendNotificationMail(uInfo, UserManagerActions.update, isTest);
             }
             else
                 return "Error changing email";
@@ -76,19 +80,18 @@ namespace ServiceMembership_Core
             return profileTable;
         }
 
-        public static string DeleteUser(string user, string adminUser)
+        public static string DeleteUser(string user, string adminUser, bool isTest)
         {
             try
             {
-                Provider provider = new Provider();
-                
-                if (Membership.DeleteUser(user))
-                {
-                    UserInfo userInfo = GetUserInfo(Membership.GetUser(adminUser), new SprocCalls());
-                    if(userInfo != null)
-                        SendNotificationMail(userInfo, UserManagerActions.delete);
+                IProvider provider = ApplicationTools.InitProvider(isTest);
 
-                    return "Deleted user successfully.";
+                if (provider.MembershipActionDelete(user))
+                {
+                    UserInfo adminInfo = GetUserInfo(adminUser, isTest);
+                    SendNotificationMail(adminInfo, UserManagerActions.delete, isTest);
+
+                    return string.Empty;
                 }
                 else
                     throw new Exception("Error deleting user");
@@ -100,19 +103,19 @@ namespace ServiceMembership_Core
             }            
         }
 
-        public static bool RecoverPassword(RecoverModel model, ISprocCalls sprocCalls = null)
+        public static string RecoverPassword(RecoverModel model, bool isTest = false)
         {
             try
             {
-                Provider provider = new Provider();
-                sprocCalls = ApplicationTools.InitSprocCall(sprocCalls);
+                IProvider provider = ApplicationTools.InitProvider(isTest);
+                ISprocCalls sprocCalls = ApplicationTools.InitSprocCall(isTest);
 
-                MembershipUser user = Membership.GetUser(model.UserName);
+                UserInfo user = GetUserInfo(model.UserName, isTest);
                 if (user.Email == model.Email)
                 {
-                    user.ChangePassword(user.GetPassword(), Membership.GeneratePassword(9, 1));
-                    SetMessageBody(GetUserInfo(user, sprocCalls), UserManagerActions.recoverPass);
-                    return true;
+                    string newPassword;
+                    if (provider.MembershipActionRecoverPass(user.UserName, user.Email, out newPassword))
+                        SendNotificationMail(user, UserManagerActions.recoverPass, isTest, newPassword);
                 }
                 else
                     throw new Exception("Email entered for user is not valid.");
@@ -120,16 +123,23 @@ namespace ServiceMembership_Core
             catch (Exception ex)
             {
                 DBCommands.RecordError(ex);
-                return false;
-            }            
+                return ex.Message;
+            }
+
+            return string.Empty;
         }
 
-        public static bool ChangePassword(string userName, string password)
+        public static bool SendNotificationMail(UserInfo user, UserManagerActions action, bool isTest, string addMessage = null)
         {
             try
             {
-                MembershipUser user = Membership.GetUser(userName);
-                user.ChangePassword(user.GetPassword(), password);
+                INotificationTools notificationTools = ApplicationTools.InitNotification(isTest);
+
+                string body = SetMessageBody(user, action, addMessage);
+                string name = (user.FirstName != null && user.LastName != null) ? 
+                    user.FirstName + " " + user.LastName : user.UName;
+
+                notificationTools.SendNotificationMail(user.Email, name, body);
                 return true;
             }
             catch (Exception ex)
@@ -139,35 +149,7 @@ namespace ServiceMembership_Core
             }
         }
 
-        private static void SendNotificationMail(UserInfo user, UserManagerActions action)
-        {
-            try
-            {
-                MailAddress fromAddress = new MailAddress("charlespkolstad@gmail.com", "Charles");
-                MailAddress toAddress = new MailAddress(user.Email, user.UName);
-                string subject = "New message from Service Membership.";
-                string body = SetMessageBody(user, action);
-
-                SmtpClient smtp = new SmtpClient();
-                smtp.Host = "smtp.gmail.com";
-                smtp.Port = 587;
-                smtp.EnableSsl = false;
-                smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
-                smtp.UseDefaultCredentials = false;
-                smtp.Credentials = new NetworkCredential("charlespkolstad@gmail.com", "charles020810kolstad");
-                MailMessage message = new MailMessage(fromAddress, toAddress);
-                message.Subject = subject;
-                message.Body = body;
-
-                smtp.Send(message);
-            }
-            catch (Exception ex)
-            {
-                DBCommands.RecordError(ex);
-            }
-        }
-
-        private static string SetMessageBody(UserInfo user, UserManagerActions action)
+        private static string SetMessageBody(UserInfo user, UserManagerActions action, string addMessage)
         {
             StringBuilder message = new StringBuilder();
             switch (action)
@@ -187,7 +169,7 @@ namespace ServiceMembership_Core
                     break;
                 case UserManagerActions.recoverPass:
                     message.Append("A new temporary password has been generated for you.<br />");
-                    message.Append("Your temporary password is " + Membership.GetUser(user.UName).GetPassword());
+                    message.Append("Your temporary password is " + addMessage);
                     message.Append(".<hr />  Please login using your temporary password.  You ");
                     message.Append("will need to change your password once you successfully login.");
                     break;
@@ -205,21 +187,46 @@ namespace ServiceMembership_Core
                 throw new Exception("No message.");
         }
 
-        private static UserInfo GetUserInfo(MembershipUser user, ISprocCalls sprocCalls)
+        public static UserInfo GetUserInfo(string user, bool isTest)
         {
             try
             {
-                UserInfo uMember = new UserInfo();
-                UserInfo uInfo = sprocCalls.GetUserInfoByUser(user.UserName);
+                IProvider provider = ApplicationTools.InitProvider(isTest);
+                ISprocCalls sprocCalls = ApplicationTools.InitSprocCall(isTest);
+                UserInfo uInfo = sprocCalls.GetUserInfoByUser(user);
 
-                uMember = (UserInfo)user;
-                uMember.UserInfoID = uInfo.UserInfoID;
-                uMember.PhoneNumber = uInfo.PhoneNumber;
-                uMember.FirstName = uInfo.FirstName;
-                uMember.LastName = uInfo.LastName;
-                uMember.UserProfiles = uInfo.UserProfiles;
+                return provider.GetUserByName(uInfo);
+            }
+            catch (Exception ex)
+            {
+                DBCommands.RecordError(ex);
+                return null;
+            }
+        }
 
-                return uMember;
+        public static List<UserInfo> GetAllUsers(bool isTest = false)
+        {
+            try
+            {
+                List<UserInfo> userList = new List<UserInfo>();
+                UserInfo userInfo;
+                ISprocCalls sprocCalls = ApplicationTools.InitSprocCall(isTest);
+                IProvider provider = ApplicationTools.InitProvider(isTest);
+                DataTable userTable = sprocCalls.UserProfileGetAll();
+
+                foreach (DataRow row in userTable.Rows)
+                {
+                    userInfo = new UserInfo();
+                    userInfo.FirstName = row["FirstName"].ToString();
+                    userInfo.LastName = row["LastName"].ToString();
+                    userInfo.UName = row["UserName"].ToString();
+                    userInfo.PhoneNumber = row["PhoneNumber"].ToString();
+                    userInfo = provider.GetUserByName(userInfo);
+
+                    userList.Add(userInfo);
+                }
+
+                return userList;
             }
             catch (Exception ex)
             {
@@ -229,7 +236,7 @@ namespace ServiceMembership_Core
         }
     }
 
-    internal enum UserManagerActions
+    public enum UserManagerActions
     {
         create,
         update,

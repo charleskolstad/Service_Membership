@@ -9,14 +9,6 @@ namespace ServiceMembership_Core
 {
     internal class ApplicationTools
     {
-        internal static ISprocCalls InitSprocCall(ISprocCalls sprocCalls)
-        {
-            if (sprocCalls == null)
-                return new SprocCalls();
-            else
-                return sprocCalls;
-        }
-
         internal static ISprocCalls InitSprocCall(bool isTest)
         {
             if (isTest)
@@ -31,6 +23,14 @@ namespace ServiceMembership_Core
                 return new FakeProvider();
             else
                 return new Provider();
+        }
+
+        internal static INotificationTools InitNotification(bool isTest)
+        {
+            if (isTest)
+                return new FakeNotificationTools();
+
+            return new NotificationTools();
         }
     }
 }

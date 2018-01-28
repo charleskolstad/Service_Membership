@@ -80,6 +80,11 @@ namespace ServiceMembership_Data
             return DBCommands.AdapterFill("p_UserProfile_GetByUserName");
         }
 
+        public DataTable UserProfileGetAll()
+        {
+            return DBCommands.AdapterFill("p_UserInfo_GetActive");
+        }
+
         //public bool UserProfileUpdate(MemberProfile profile, string adminUser)
         //{
         //    DBCommands.PopulateParams("@AdminUser", adminUser);
@@ -128,6 +133,11 @@ namespace ServiceMembership_Data
             return true;
         }
 
+        public DataTable UserProfileGetAll()
+        {
+            return new DataTable();
+        }
+
         public DataTable UserProfileGetByUser(string userName)
         {
             return new DataTable();
@@ -150,5 +160,7 @@ namespace ServiceMembership_Data
         DataTable UserProfileGetByUser(string userName);
         //bool UserProfileUpdate(MemberProfile profile, string adminUser);
         string UserInfoInsert(UserInfo userInfo, string adminUser);
+
+        DataTable UserProfileGetAll();
     }
 }

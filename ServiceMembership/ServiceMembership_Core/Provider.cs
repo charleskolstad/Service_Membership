@@ -1,4 +1,5 @@
 ﻿using ServiceMembership_Data;
+using ServiceMembership_Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -142,10 +143,28 @@ namespace ServiceMembership_Core
 
             return true;
         }
+
+        public UserInfo GetUserByName(UserInfo uInfo)
+        {
+            UserInfo uMember = new UserInfo();
+            uMember = (UserInfo)Membership.GetUser(uInfo.UName);
+            uMember.UserInfoID = uInfo.UserInfoID;
+            uMember.PhoneNumber = uInfo.PhoneNumber;
+            uMember.FirstName = uInfo.FirstName;
+            uMember.LastName = uInfo.LastName;
+            uMember.UserProfiles = uInfo.UserProfiles;
+
+            return uMember;
+        }
     }
 
     public class FakeProvider : IProvider
     {
+        public UserInfo GetUserByName(UserInfo uInfo)
+        {
+            return new UserInfo();
+        }
+
         public bool MembershipActionChangeEmail(string uName, string email)
         {
             return true;
@@ -177,5 +196,7 @@ namespace ServiceMembership_Core
         bool MembershipActionRecoverPass(string userName, string email, out string newPassword);
 
         bool MembershipActionChangeEmail(string uName, string email);
+
+        UserInfo GetUserByName(UserInfo uInfo);
     }
 }
