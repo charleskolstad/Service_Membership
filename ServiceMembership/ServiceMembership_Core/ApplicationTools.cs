@@ -16,5 +16,21 @@ namespace ServiceMembership_Core
             else
                 return sprocCalls;
         }
+
+        internal static ISprocCalls InitSprocCall(bool isTest)
+        {
+            if (isTest)
+                return new FakeSprocCalls();
+            else
+                return new SprocCalls();
+        }
+
+        internal static IProvider InitProvider(bool isTest)
+        {
+            if (isTest)
+                return new FakeProvider();
+            else
+                return new Provider();
+        }
     }
 }

@@ -24,10 +24,10 @@ namespace ServiceMembership_Test
             string result;
 
             //act
-            result = UserManager.CreateUser(userInfo, adminUser, new FakeSprocCalls());
+            result = UserManager.CreateUser(userInfo, adminUser, true);
 
             //assert
-            Assert.IsFalse(string.IsNullOrEmpty(result));
+            Assert.IsTrue(string.IsNullOrEmpty(result));
         }
 
         [Test]
@@ -40,10 +40,10 @@ namespace ServiceMembership_Test
             string result;
 
             //act
-            result = UserManager.UpdateUser(userInfo, adminUser, new FakeSprocCalls());
+            result = UserManager.UpdateUser(userInfo, adminUser, true);
 
             //assert
-            Assert.IsFalse(string.IsNullOrEmpty(result));
+            Assert.IsTrue(string.IsNullOrEmpty(result));
         }
     }
 }

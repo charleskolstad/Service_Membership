@@ -10,7 +10,7 @@ using System.Web.Security;
 
 namespace ServiceMembership_Core
 {
-    public class Provider
+    public class Provider : IProvider
     {
         public Provider()
         {
@@ -58,7 +58,7 @@ namespace ServiceMembership_Core
             }
         }
 
-        static void NewPasswordNeeded()
+        private static void NewPasswordNeeded()
         {
             MembershipUser user = Membership.GetUser();
 
@@ -71,5 +71,111 @@ namespace ServiceMembership_Core
             //    }
             //}
         }
+
+        public string MembershipActionCreate(string uName, string email)
+        {
+            string result = string.Empty;
+
+            try
+            {
+                Membership.CreateUser(uName, "p@ssword1", email);
+            }
+            catch (MembershipCreateUserException ex)
+            {
+                return ex.Message;
+            }
+
+            return result;
+        }
+
+        public bool MembershipActionDelete(string userName)
+        {
+            try
+            {
+                return (Membership.DeleteUser(userName));
+            }
+            catch (Exception ex)
+            {
+                DBCommands.RecordError(ex);
+                return false;
+            }
+        }
+
+        public bool MembershipActionRecoverPass(string userName, string email, out string newPassword)
+        {
+            newPassword = string.Empty;
+
+            try
+            {
+                MembershipUser user = Membership.GetUser(userName);
+                if (user.Email == email)
+                {
+                    newPassword = Membership.GeneratePassword(9, 1);
+                    user.ChangePassword(user.GetPassword(), newPassword);
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                DBCommands.RecordError(ex);
+            }
+
+            return false;
+        }
+
+        public bool MembershipActionChangeEmail(string uName, string email)
+        {
+            try
+            {
+                MembershipUser user = Membership.GetUser(uName);
+                if (email != user.Email)
+                {
+                    user.Email = email;
+                    Membership.UpdateUser(user);
+                }
+            }
+            catch (Exception ex)
+            {
+                DBCommands.RecordError(ex);
+                return false;
+            }
+
+            return true;
+        }
+    }
+
+    public class FakeProvider : IProvider
+    {
+        public bool MembershipActionChangeEmail(string uName, string email)
+        {
+            return true;
+        }
+
+        public string MembershipActionCreate(string uName, string email)
+        {
+            return string.Empty;
+        }
+
+        public bool MembershipActionDelete(string userName)
+        {
+            return true;
+        }
+
+        public bool MembershipActionRecoverPass(string userName, string email, out string newPassword)
+        {
+            newPassword = "NewPassword";
+            return true;
+        }
+    }
+
+    public interface IProvider
+    {
+        string MembershipActionCreate(string uName, string email);
+
+        bool MembershipActionDelete(string userName);
+
+        bool MembershipActionRecoverPass(string userName, string email, out string newPassword);
+
+        bool MembershipActionChangeEmail(string uName, string email);
     }
 }

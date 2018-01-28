@@ -14,69 +14,43 @@ namespace ServiceMembership_Core
 {
     public class UserManager
     {
-        public static string CreateUser(UserInfo userInfo, string adminUser)
+        public static string CreateUser(UserInfo userInfo, string adminUser, bool isTest = false)
         {
             try
             {
-                Membership.CreateUser(userInfo.UserName, "p@ssword1", userInfo.Email);
-                string result = CreateUser(userInfo, adminUser, new SprocCalls());
+                IProvider provider = ApplicationTools.InitProvider(isTest);
+                ISprocCalls sprocCalls = ApplicationTools.InitSprocCall(isTest);
 
-                if(!string.IsNullOrEmpty(result))
-                    SendNotificationMail(userInfo, UserManagerActions.create);
-
-                return result;
-            }
-            catch (MembershipCreateUserException ex)
-            {
-                return ex.Message;
-            }
-        }
-
-        public static string CreateUser(UserInfo userInfo, string adminUser, ISprocCalls sprocCalls)
-        {
-            try
-            {
-                if (!string.IsNullOrEmpty(sprocCalls.UserInfoInsert(userInfo, adminUser)))
-                    return userInfo.UserName + "'s profile created successfully!";
+                string providerMessage = provider.MembershipActionCreate(userInfo.UName, userInfo.Email);
+                if (string.IsNullOrEmpty(providerMessage))
+                {
+                    if (string.IsNullOrEmpty(sprocCalls.UserInfoInsert(userInfo, adminUser)))
+                        return "Error saving user's info";
+                }
+                else
+                    return providerMessage;
             }
             catch (Exception ex)
             {
                 DBCommands.RecordError(ex);
+                return "Error creating user.";
             }
 
             return string.Empty;
         }
 
-        public static string UpdateUser(UserInfo uInfo, string adminUser)
+        public static string UpdateUser(UserInfo uInfo, string adminUser, bool isTest = false)
         {
-            string result = string.Empty;
-            Provider provider = new Provider();
+            IProvider provider = ApplicationTools.InitProvider(isTest);
+            ISprocCalls sprocCalls = ApplicationTools.InitSprocCall(isTest);
 
-            if (UpdateMembershipEmail(uInfo))
-                result = UpdateUser(uInfo, adminUser, new SprocCalls());
-
-            if(!string.IsNullOrEmpty(result))
-                SendNotificationMail(uInfo, UserManagerActions.update);
-
-            return result;
-        }
-
-        public static string UpdateUser(UserInfo uInfo, string adminUser, ISprocCalls sprocCalls = null)
-        {
-            try
+            if (provider.MembershipActionChangeEmail(uInfo.UName, uInfo.Email))
             {
-                sprocCalls = ApplicationTools.InitSprocCall(sprocCalls);
-
-                DataTable profileTable = ConvertProfileToTable(uInfo.UserProfiles);
-                if (sprocCalls.UserInfoUpdate(uInfo, profileTable, adminUser))
-                    return uInfo.UserName + "'s profile updated successfully!";
-
-                return "Error updating " + uInfo.UserName;
+                if (!sprocCalls.UserInfoUpdate(uInfo, ConvertProfileToTable(uInfo.UserProfiles), adminUser))
+                    return "Error updating user info.";
             }
-            catch (Exception ex)
-            {
-                DBCommands.RecordError(ex);
-            }
+            else
+                return "Error changing email";
 
             return string.Empty;
         }
@@ -102,32 +76,12 @@ namespace ServiceMembership_Core
             return profileTable;
         }
 
-        private static bool UpdateMembershipEmail(UserInfo uInfo)
-        {
-            try
-            {
-                MembershipUser user = Membership.GetUser(uInfo.UName);
-                if (uInfo.Email != user.Email)
-                {
-                    user.Email = uInfo.Email;
-                    Membership.UpdateUser(user);
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                DBCommands.RecordError(ex);
-                return false;
-            }
-        }
-
         public static string DeleteUser(string user, string adminUser)
         {
             try
             {
                 Provider provider = new Provider();
-
+                
                 if (Membership.DeleteUser(user))
                 {
                     UserInfo userInfo = GetUserInfo(Membership.GetUser(adminUser), new SprocCalls());
