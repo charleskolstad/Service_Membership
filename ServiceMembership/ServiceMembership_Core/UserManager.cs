@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web.Security;
 
@@ -21,24 +22,64 @@ namespace ServiceMembership_Core
                 IProvider provider = ApplicationTools.InitProvider(isTest);
                 ISprocCalls sprocCalls = ApplicationTools.InitSprocCall(isTest);
 
-                string providerMessage = provider.MembershipActionCreate(userInfo.UName, userInfo.Email);
+                string providerMessage = ValidateUserInfo(userInfo);
+
                 if (string.IsNullOrEmpty(providerMessage))
                 {
-                    if (string.IsNullOrEmpty(sprocCalls.UserInfoInsert(userInfo, adminUser)))
-                        return "Error saving user's info";
-                    else
-                        SendNotificationMail(userInfo, UserManagerActions.create, isTest);
+                    providerMessage = provider.MembershipActionCreate(userInfo.UName, userInfo.Email);
+                    if (string.IsNullOrEmpty(providerMessage))
+                    {
+                        if (string.IsNullOrEmpty(sprocCalls.UserInfoInsert(userInfo, adminUser)))
+                            providerMessage = "Error saving user's info";
+                        else
+                            SendNotificationMail(userInfo, UserManagerActions.create, isTest);
+                    }
                 }
-                else
-                    return providerMessage;
+
+                return providerMessage;
             }
             catch (Exception ex)
             {
                 DBCommands.RecordError(ex);
                 return "Error creating user.";
             }
+        }
 
-            return string.Empty;
+        private static string ValidateUserInfo(UserInfo uInfo)
+        {
+            string message = string.Empty;
+
+            if (!string.IsNullOrEmpty(uInfo.PhoneNumber))
+            {
+                Regex regex = new Regex(@"\(?\d{3}\)?-? *\d{3}-? *-?\d{4}");
+                Match match = regex.Match(uInfo.PhoneNumber);
+                if (!match.Success)
+                {
+                    message = "Please enter valid phone number.";
+                }
+            }
+
+            bool oneActive = false;
+            foreach (MemberProfile profile in uInfo.UserProfiles)
+            {
+                if (!oneActive)
+                    oneActive = profile.Active;
+            }
+            if (!oneActive)
+            {
+                message = "At least one permission box must be checked.";
+            }
+
+            if (string.IsNullOrEmpty(uInfo.FirstName))
+            {
+                message = "Please enter your first name.";
+            }
+            if (string.IsNullOrEmpty(uInfo.LastName))
+            {
+                message = "Please enter last name.";
+            }
+
+            return message;
         }
 
         public static string UpdateUser(UserInfo uInfo, string adminUser, bool isTest = false)

@@ -3,6 +3,7 @@ using ServiceMembership_Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
@@ -29,6 +30,7 @@ namespace ServiceMembership_Web.Controllers
         {
             if (ModelState.IsValid)
             {
+                Provider provider = new Provider();
                 if (Membership.ValidateUser(model.UserName, model.Password))
                 {
                     FormsAuthentication.SetAuthCookie(model.UserName, true);
@@ -59,10 +61,36 @@ namespace ServiceMembership_Web.Controllers
             return View();
         }
 
+        public ActionResult Logout()
+        {
+            FormsAuthentication.SignOut();
+
+            return RedirectToAction("Login", "Admin");
+        }
+
+        public ActionResult AllUsers()
+        {
+            return View();
+        }
+
         public JsonResult UsersGetAll()
         {
             List<UserInfo> userInfo = UserManager.GetAllUsers();
             return Json(userInfo, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult ProfilesGetAll()
+        {
+            List<Profile> profiles = ProfileManager.GetAllProfiles();
+
+            return Json(profiles, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public string CreateUser(UserInfo info)
+        {
+            string message = UserManager.CreateUser(info, Membership.GetUser().UserName);
+            return message;            
         }
     }
 }

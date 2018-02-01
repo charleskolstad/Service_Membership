@@ -147,7 +147,13 @@ namespace ServiceMembership_Core
         public UserInfo GetUserByName(UserInfo uInfo)
         {
             UserInfo uMember = new UserInfo();
-            uMember = (UserInfo)Membership.GetUser(uInfo.UName);
+            MembershipUser user = Membership.GetUser(uInfo.UName);
+            uMember.Comment = user.Comment;
+            uMember.Email = user.Email;
+            uMember.IsApproved = user.IsApproved;
+            uMember.LastActivityDate = user.LastActivityDate;
+            uMember.LastLoginDate = user.LastLoginDate;
+
             uMember.UserInfoID = uInfo.UserInfoID;
             uMember.PhoneNumber = uInfo.PhoneNumber;
             uMember.FirstName = uInfo.FirstName;

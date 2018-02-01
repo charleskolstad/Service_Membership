@@ -117,7 +117,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="assets\css\admin.css" />
     <Content Include="assets\css\login.css" />
+    <Content Include="assets\js\angular-controller\UsersController.js" />
+    <Content Include="assets\js\controlattributes.js" />
+    <Content Include="assets\js\inputmask.js" />
+    <Content Include="assets\js\sidenav.js" />
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -136,6 +141,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Views\Admin\Login.cshtml" />
+    <Content Include="Views\Admin\RecoverPassword.cshtml" />
+    <Content Include="Views\Admin\Index.cshtml" />
+    <Content Include="Views\Admin\AllUsers.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -145,7 +153,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="assets\img\" />
-    <Folder Include="assets\js\" />
+    <Folder Include="assets\js\angular-filters\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ServiceMembership_Core\ServiceMembership_Core.csproj">

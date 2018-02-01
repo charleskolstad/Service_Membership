@@ -12,5 +12,6 @@ namespace ServiceMembership_Models
         public string ProfileName { get; set; }
         public string ProfileDescription { get; set; }
         public int ProfileLevel { get; set; }
+        public bool Active { get; set; }
     }
 }

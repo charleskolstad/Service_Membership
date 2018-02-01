@@ -18,8 +18,15 @@ namespace ServiceMembership_Test
         public void CreateUser_SuccessfullyCreateUser_ReturnNonEmptyString()
         {
             //arrange
+            MemberProfile profile = new MemberProfile();
+            profile.ProfileID = 1;
+            profile.UserName = "NewUser";
+            profile.Active = true;
             UserInfo userInfo = new UserInfo();
             userInfo.UName = "NewUser";
+            userInfo.FirstName = "Firstname";
+            userInfo.LastName = "Lastname";
+            userInfo.UserProfiles.Add(profile);
             string adminUser = "AdminUser";
             string result;
 
