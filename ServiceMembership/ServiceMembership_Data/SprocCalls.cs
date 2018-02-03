@@ -10,45 +10,41 @@ namespace ServiceMembership_Data
 {
     public class SprocCalls : ISprocCalls
     {
-        public bool DeleteProfile(int profileID, string userName)
-        {
-            DBCommands.PopulateParams("@UserName", userName);
-            DBCommands.PopulateParams("@ProfileID", profileID);
-
-            return DBCommands.ExecuteNonQuery("p_Profile_Delete");            
-        }
-
-        public UserInfo GetUserInfoByUser(string userName)
-        {
-            DBCommands.PopulateParams("@UserName", userName);
-
-            return (UserInfo)DBCommands.DataReader("p_UserInfo_GetByUserName", DBCommands.ObjectTypes.UserInfo);
-        }
-
-        public string InsertProfile(Profile profile, string userName)
-        {
-            DBCommands.PopulateParams("@UserName", userName);
-            DBCommands.PopulateParams("@ProfileName", profile.ProfileName);
-            DBCommands.PopulateParams("@ProfileDescription", profile.ProfileDescription);
-            DBCommands.PopulateParams("@ProfileLevel", profile.ProfileLevel);
-
-            return DBCommands.ExecuteScalar("p_Profile_Insert");
-        }
-
+        #region profile
         public DataTable ProfileGetAll()
         {
             return DBCommands.AdapterFill("p_Profile_GetActive");
         }
+        #endregion
 
-        public bool UpdateProfile(Profile profile, string userName)
+        #region userinfo
+        public UserInfo GetUserInfoByUser(string userName)
         {
             DBCommands.PopulateParams("@UserName", userName);
-            DBCommands.PopulateParams("@ProfileID", profile.ProfileID);
-            DBCommands.PopulateParams("@ProfileName", profile.ProfileName);
-            DBCommands.PopulateParams("@ProfileDescription", profile.ProfileDescription);
-            DBCommands.PopulateParams("@ProfileLevel", profile.ProfileLevel);
+            var userInfoTable = DBCommands.AdapterFill("p_UserInfo_GetByUserName").AsEnumerable();
+            UserInfo userInfo = null;
 
-            return DBCommands.ExecuteNonQuery("p_Profile_Update");
+            if (userInfoTable.Any())
+            {
+                userInfo = new UserInfo();
+                userInfo.FirstName = userInfoTable.Select(u => u.Field<string>("FirstName")).FirstOrDefault();
+                userInfo.LastName = userInfoTable.Select(u => u.Field<string>("LastName")).FirstOrDefault();
+                userInfo.PhoneNumber = userInfoTable.Select(u => u.Field<string>("PhoneNumber")).FirstOrDefault();
+                userInfo.UName = userName;
+                userInfo.UserInfoID = userInfoTable.Select(u => u.Field<int>("UserInfoID")).FirstOrDefault();
+
+                foreach (var row in userInfoTable)
+                {
+                    MemberProfile profile = new MemberProfile();
+                    profile.Active = row.Field<bool>("Active");
+                    profile.ProfileID = row.Field<int>("ProfileID");
+                    profile.UserName = userName;
+
+                    userInfo.UserProfiles.Add(profile);
+                }
+            }
+
+            return userInfo;
         }
 
         public string UserInfoInsert(UserInfo userInfo, string adminUser)
@@ -74,53 +70,29 @@ namespace ServiceMembership_Data
 
             return DBCommands.ExecuteNonQuery("p_UserInfo_Update");
         }
+        #endregion
 
-        public DataTable UserProfileGetByUser(string userName)
-        {
-            return DBCommands.AdapterFill("p_UserProfile_GetByUserName");
-        }
-
+        #region userprofile
         public DataTable UserProfileGetAll()
         {
             return DBCommands.AdapterFill("p_UserInfo_GetActive");
         }
-
-        //public bool UserProfileUpdate(MemberProfile profile, string adminUser)
-        //{
-        //    DBCommands.PopulateParams("@AdminUser", adminUser);
-        //    DBCommands.PopulateParams("@UserName", profile.UserName);
-        //    DBCommands.PopulateParams("@Active", profile.Active);
-        //    DBCommands.PopulateParams("@ProfileID", profile.ProfileID);
-
-        //    return DBCommands.ExecuteNonQuery("p_UserProfile_Update");
-        //}
+        #endregion
     }
 
     public class FakeSprocCalls : ISprocCalls
     {
-        public bool DeleteProfile(int profileID, string userName)
-        {
-            return true;
-        }
-
-        public UserInfo GetUserInfoByUser(string userName)
-        {
-            return new UserInfo();
-        }
-
-        public string InsertProfile(Profile profile, string userName)
-        {
-            return "1";
-        }
-
+        #region profile
         public DataTable ProfileGetAll()
         {
             return new DataTable();
         }
+        #endregion
 
-        public bool UpdateProfile(Profile profile, string userName)
+        #region userinfo
+        public UserInfo GetUserInfoByUser(string userName)
         {
-            return true;
+            return new UserInfo();
         }
 
         public string UserInfoInsert(UserInfo userInfo, string adminUser)
@@ -132,35 +104,30 @@ namespace ServiceMembership_Data
         {
             return true;
         }
+        #endregion
 
+        #region userprofile
         public DataTable UserProfileGetAll()
         {
             return new DataTable();
         }
-
-        public DataTable UserProfileGetByUser(string userName)
-        {
-            return new DataTable();
-        }
-
-        //public bool UserProfileUpdate(MemberProfile profile, string adminUser)
-        //{
-        //    return true;
-        //}
+        #endregion
     }
 
     public interface ISprocCalls
     {
+        #region profile
         DataTable ProfileGetAll();
-        string InsertProfile(Profile profile, string userName);
-        bool UpdateProfile(Profile profile, string userName);
-        bool DeleteProfile(int profileID, string userName);
+        #endregion
+
+        #region userinfo
         UserInfo GetUserInfoByUser(string userName);
         bool UserInfoUpdate(UserInfo userInfo, DataTable profileTable, string adminUser);
-        DataTable UserProfileGetByUser(string userName);
-        //bool UserProfileUpdate(MemberProfile profile, string adminUser);
         string UserInfoInsert(UserInfo userInfo, string adminUser);
+        #endregion
 
+        #region userprofile
         DataTable UserProfileGetAll();
+        #endregion
     }
 }

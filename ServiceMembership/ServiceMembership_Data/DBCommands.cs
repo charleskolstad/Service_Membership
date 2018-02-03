@@ -1,5 +1,6 @@
 ﻿using ServiceMembership_Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -51,7 +52,7 @@ namespace ServiceMembership_Data
                         {
                             foreach (var prop in obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
                             {
-                                prop.SetValue(obj, rdr[prop.Name]);
+                                    prop.SetValue(obj, rdr[prop.Name]);
                             }
                         }
                     }

@@ -13,14 +13,19 @@
                     <th scope="col">Phone Number</th>
                     <th scope="col">First Name</th>
                     <th scope="col">Last Name</th>
+                    <th scope="col"></th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="item in data.Users">
-                    <th scope="row">1</th>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td></td>
+                    <th scope="row">{{item.UName}}</th>
+                    <td>{{item.PhoneNumber}}</td>
+                    <td>{{item.FirstName}}</td>
+                    <td>{{item.LastName}}</td>
+                    <td>
+                        <button class="btn btn-warning" ng-click="getUser(item.UName)">Edit</button>
+                        <button class="btn btn-danger" ng-click="deleteModal(item.UName)">Delete</button>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -33,9 +38,9 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">
                     <i class="fa fa-user"></i>
-                    Create New User
+                    <span id="modalTitle">Create New User</span>
                 </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" ng-click="CancelChanges()">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -49,7 +54,7 @@
                         <input type="text" class="form-control" ng-model="UserInfo.UName" placeholder="User Name..." />
                     </div>
                     <div class="col-6">
-                        <input type="text" class="form-control" ng-model="UserInfo.Email" placeholder="Email..."  />
+                        <input type="text" class="form-control" ng-model="UserInfo.Email" placeholder="Email..." />
                     </div>
                     <div class="col-6">First Name:</div>
                     <div class="col-6">Last Name:</div>
@@ -62,7 +67,7 @@
                     <div class="col-6">Phone Number:</div>
                     <div class="col-6"></div>
                     <div class="col-6">
-                        <input type="text" class="form-control phone" ng-model="UserInfo.PhoneNumber"  placeholder="Phone Number..."/>
+                        <input type="text" class="form-control phone" ng-model="UserInfo.PhoneNumber" placeholder="Phone Number..." />
                     </div>
                 </div><hr />
 
@@ -73,8 +78,30 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" ng-click="saveUser()">Save Reservation</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" ng-click="CancelChanges()">Cancel</button>
+                <button type="button" class="btn btn-primary" ng-click="saveUser()">Save User</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">
+                    Attention
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <span id="DeleteMessage"></span>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-info" data-dismiss="modal" aria-label="Close">No</button>
+                <button class="btn btn-danger" ng-click="deleteUser()">Yes</button>
             </div>
         </div>
     </div>

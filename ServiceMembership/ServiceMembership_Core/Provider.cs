@@ -154,6 +154,7 @@ namespace ServiceMembership_Core
             uMember.LastActivityDate = user.LastActivityDate;
             uMember.LastLoginDate = user.LastLoginDate;
 
+            uMember.UName = uInfo.UName;
             uMember.UserInfoID = uInfo.UserInfoID;
             uMember.PhoneNumber = uInfo.PhoneNumber;
             uMember.FirstName = uInfo.FirstName;

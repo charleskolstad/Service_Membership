@@ -121,7 +121,7 @@ namespace ServiceMembership_Core
             return profileTable;
         }
 
-        public static string DeleteUser(string user, string adminUser, bool isTest)
+        public static string DeleteUser(string user, string adminUser, bool isTest = false)
         {
             try
             {
@@ -228,7 +228,7 @@ namespace ServiceMembership_Core
                 throw new Exception("No message.");
         }
 
-        public static UserInfo GetUserInfo(string user, bool isTest)
+        public static UserInfo GetUserInfo(string user, bool isTest = false)
         {
             try
             {

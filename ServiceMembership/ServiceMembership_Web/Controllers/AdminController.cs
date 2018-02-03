@@ -19,9 +19,20 @@ namespace ServiceMembership_Web.Controllers
             return View();
         }
 
+        #region loginactions
         [AllowAnonymous]
-        public ActionResult Login()
+        public ActionResult Login(string returnUrl)
         {
+            if (User.Identity.IsAuthenticated)
+            {
+                if (!String.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                    return Redirect(returnUrl);
+
+                return RedirectToAction("Index");
+            }
+
+            ViewBag.ReturnUrl = returnUrl;
+
             return View();
         }
 
@@ -53,10 +64,15 @@ namespace ServiceMembership_Web.Controllers
         [AllowAnonymous, HttpPost]
         public ActionResult RecoverPassword(RecoverModel model)
         {
-            string message = UserManager.RecoverPassword(model);
-
-            if (!string.IsNullOrEmpty(message))
-                ModelState.AddModelError("", message);
+            if (ModelState.IsValid)
+            {
+                Provider provider = new Provider();
+                ModelState.AddModelError("", "The user name or password provided is incorrect.");
+                
+                string message = UserManager.RecoverPassword(model);
+                if (!string.IsNullOrEmpty(message))
+                    ModelState.AddModelError("", message);
+            }
 
             return View();
         }
@@ -67,15 +83,25 @@ namespace ServiceMembership_Web.Controllers
 
             return RedirectToAction("Login", "Admin");
         }
+        #endregion
 
+        #region partialviews
         public ActionResult AllUsers()
         {
             return View();
         }
+        #endregion
 
+        #region 
         public JsonResult UsersGetAll()
         {
             List<UserInfo> userInfo = UserManager.GetAllUsers();
+            return Json(userInfo, JsonRequestBehavior.AllowGet);
+        }
+
+        public JsonResult UserGetByID(string userName)
+        {
+            UserInfo userInfo = UserManager.GetUserInfo(userName);
             return Json(userInfo, JsonRequestBehavior.AllowGet);
         }
 
@@ -92,5 +118,15 @@ namespace ServiceMembership_Web.Controllers
             string message = UserManager.CreateUser(info, Membership.GetUser().UserName);
             return message;            
         }
+
+        public string DeleteUser(string userName)
+        {
+            string message = UserManager.DeleteUser(userName, Membership.GetUser().UserName);
+            if (string.IsNullOrEmpty(message))
+                return userName + " deleted.";
+            else
+                return message;
+        }
+        #endregion
     }
 }

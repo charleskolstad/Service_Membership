@@ -16,6 +16,8 @@
 </head>
 <body class="text-center">
     <div class="container">
+        @Html.ValidationSummary(true)
+
         @using (Html.BeginForm("Login", "Admin", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-signin" }))
         {
             <h2 class="form-signin-heading">Please sign in</h2>
